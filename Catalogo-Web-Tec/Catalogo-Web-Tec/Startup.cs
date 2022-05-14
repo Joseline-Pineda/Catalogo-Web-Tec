@@ -1,34 +1,67 @@
+using AutoMapper;
+using CatalogoWebApp.DataAccess;
+using CatalogoWebApp.Services;
+using ContaWebApi.Api.Infrastructure;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CatalogoWebApp.Models.NoSQL;
+using MongoDB.Bson.Serialization;
+using TransaccionesWebApi.Services;
 
-namespace Catalogo_Web_Tec
+namespace AdminLTE
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddFluentValidation(conf => { conf.RegisterValidatorsFromAssemblyContaining<Startup>(); });
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddDbContext<AppDbContext>(cfg =>
+            {
+                cfg.UseSqlServer(_configuration.GetConnectionString("SqlServerConnection"), builder =>
+                {
+                    builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                });
+            });
+
+            services.AddHttpContextAccessor();
+            services.AddTransient<IFileService, FileService>();
+            services.AddTransient<IPathResolver,PathResolver>();
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(500);
+            });
+            services.Configure<StoreDatabaseSettings>(_configuration.GetSection("StoreDatabase"));
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, 
+            IHostEnvironment env,
+            ILoggerFactory logger)
         {
+
+            //var path = Directory.GetCurrentDirectory();  
+            logger.AddFile($"C:\\Logs\\Log.txt");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -45,6 +78,7 @@ namespace Catalogo_Web_Tec
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
