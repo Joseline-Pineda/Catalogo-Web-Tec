@@ -1,0 +1,24 @@
+{
+  "Facultades": [
+    {
+      "FacultadId": 100,
+      "Codigo": 100,
+      "Nombre": "Ciencias  y humanidades"
+    },
+    {
+      "FacultadId": 500,
+      "Codigo": 500,
+      "Nombre": "Facultad de ciencias de la salud"
+    },
+    {
+      "FacultadId": 600,
+      "Codigo": 600,
+      "Nombre": "Ingenieria y arquitectura"
+    },
+    {
+      "FacultadId": 800,
+      "Codigo": 800,
+      "Nombre": "Ciencias empresariales"
+    }
+  ]
+}
