@@ -1,0 +1,126 @@
+﻿@model IEnumerable<CatalogoWebApp.Models.NoSQL.TrabajoDeGraduacion>
+
+@{
+    ViewData["Title"] = "Index";
+    <link href="~/lib/datatables/css/dataTables.bootstrap.css" rel="stylesheet" />
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center">Trabajos de graduacion</h2>
+<div class="container-fluid">
+    <p class="text-right">
+        <a class="btn btn-primary" asp-action="Create">Agregar</a>
+    </p>
+    <table id="trabajos" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Titulo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Autor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Autor.Carrera)
+            </th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Autor.Nombres)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tipo.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Autor.Carrera.Nombre)
+                </td>
+                <td class="text-center">
+
+                    <a class="btn btn-info" asp-action="Edit" asp-route-id="@item.Id"><i class="fa fa-edit"></i><span></span></a>
+                    <a class="btn btn-success" asp-action="Details" asp-route-id="@item.Id"><i class="fa fa-list"></i><span></span></a>
+                    <a class="btn btn-danger" onclick="openModal('@item.Id')"><i class="fa fa-trash"></i><span></span></a>
+                </td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Titulo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Autor)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tipo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Autor.Carrera)
+            </th>
+            <th></th>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div id="modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="height: 50%">
+                <h2 class="modal-title text-center">Borrar</h2>
+                <div class="modal-body">
+                    <h4>¿Esta seguro de que quieres eliminar este registro?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="funcion(id)">Si</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section script {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#trabajos').DataTable({
+                'columnDefs': [{
+                    'targets': [4],
+                    'orderable': false
+                }]
+            });
+        });
+
+        var autorId = 0;
+
+        function openModal(id) {
+            autorId = id;
+            $("#modal").modal("show");
+        }
+
+
+        function funcion() {
+            $.ajax({
+                url: "trabajosdegraduacion/delete/" + autorId,
+                success: function () {
+                    $('#modal').modal("hide");
+                    location.reload();
+                }
+            });
+        }
+    </script>
+
+}

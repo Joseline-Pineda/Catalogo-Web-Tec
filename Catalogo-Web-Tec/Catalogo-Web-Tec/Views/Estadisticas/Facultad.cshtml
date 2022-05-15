@@ -1,0 +1,108 @@
+﻿@model List<SimpleReportViewModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var xLabels = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.DimensionOne).ToList());
+    var yValues = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Select(x => x.Quantity).ToList());
+    ViewData["Title"] = "Trabajos de graduacion por facultades";
+}
+
+<div class="row">
+    <h2 class="text-center">@ViewData["Title"]</h2>
+    <br />
+    <br />
+    <br />
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-10">
+        <div class="chart">
+            <canvas id="chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
+
+@section script
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script type="text/javascript">
+
+    $(function() {
+        var barChartCanvas = $('#chart').get(0).getContext('2d');
+        var data = {
+            labels: @Html.Raw(xLabels),
+            datasets: [{
+                label: "Trabajos de Graduacion",
+                backgroundColor: [
+                    '#d50000',
+                    '#00796b',
+                    '#ff3d00',
+                    '#4fc3f7',
+                    '#ffff00',
+                    '#DF4CDC',
+                    '#3d5afe',
+                    '#388e3c',
+                    '#8F2343',
+                    '#EBE0AC',
+                    '#d4e157',
+                    '#795548',
+                    '#78909c',
+                    '#43A3F0',
+                    '#311b92'
+                ],
+                borderColor: [
+                    '#d50000',
+                    '#00796b',
+                    '#ff3d00',
+                    '#4fc3f7',
+                    '#ffff00',
+                    '#DF4CDC',
+                    '#3d5afe',
+                    '#388e3c',
+                    '#8F2343',
+                    '#EBE0AC',
+                    '#d4e157',
+                    '#795548',
+                    '#78909c',
+                    '#43A3F0',
+                    '#311b92'
+                ],
+                borderWidth: 1,
+                data: @Html.Raw(yValues) }]
+        };
+
+        var chartOptions = {
+            maintainAspectRatio     : false,
+            datasetFill             : false,
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    boxWidth: 80,
+                    fontColor: 'black'
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        steps: 1
+                    }
+                }]
+            }
+        };
+
+        var barChart = new Chart(barChartCanvas,
+            {
+                type: 'bar',
+                data: data,
+                options: chartOptions
+            });
+
+        barChart.toString();
+
+    });
+
+    </script>
+}
+
